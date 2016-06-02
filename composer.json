@@ -1,0 +1,22 @@
+{
+  "name": "ingle/ingle-insurance-php-api",
+  "description": "Core package for Ingle Insurance PHP API",
+  "require": {
+    "php": ">=5.5.9",
+    "guzzlehttp/guzzle": "~6.0"
+  },
+  "require-dev": {
+    "stripe/stripe-php": "3.*",
+    "phpunit/phpunit": "~4.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Ingle\\Insurance\\Api\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Ingle\\Insurance\\ApiTest\\": "tests/"
+    }
+  }
+}
