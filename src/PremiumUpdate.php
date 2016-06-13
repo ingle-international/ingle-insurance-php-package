@@ -78,9 +78,9 @@ class PremiumUpdate extends Base
             $this->data['application']['id']), $this->data);
 
         if ($responseData['type'] == 'charge') {
-            return new PremiumCharge($responseData, $this->source, ['client' => $this->client]);
+            return new PremiumCharge($responseData);
         } else {
-            return new PremiumRefund($responseData, $this->source, ['client' => $this->client]);
+            return new PremiumRefund($responseData);
         }
     }
 }
