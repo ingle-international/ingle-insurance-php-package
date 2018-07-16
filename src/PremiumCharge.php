@@ -108,7 +108,7 @@ class PremiumCharge extends Base
     {
         $paymentData = [
             'payment_provider' => $this->paymentProvider,
-            'additional_data' => $this->additionalData,
+            'additional_data'  => $this->additionalData,
         ];
 
         $response = $this->client->post(sprintf('premium/charge/%s/%s', $this->source, $this->getId()),

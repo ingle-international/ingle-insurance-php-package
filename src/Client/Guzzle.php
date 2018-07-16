@@ -4,10 +4,10 @@ namespace Ingle\Insurance\Api\Client;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
-use Ingle\Insurance\Api\Exception\ResponseException;
-use Ingle\Insurance\Api\Exception\BadRequestException;
-use Ingle\Insurance\Api\Exception\ServerException;
 use Ingle\Insurance\Api\Exception\AuthenticationException;
+use Ingle\Insurance\Api\Exception\BadRequestException;
+use Ingle\Insurance\Api\Exception\ResponseException;
+use Ingle\Insurance\Api\Exception\ServerException;
 
 class Guzzle implements BaseClient
 {
@@ -22,11 +22,21 @@ class Guzzle implements BaseClient
     private $timeout = 15.0;
 
     /**
+     * @var string The API key
+     */
+    private $apiKey;
+
+    /**
+     * @var bool
+     */
+    private $authorizationHeaderSet = false;
+
+    /**
      * @var array client headers
      */
     private $headers = [
-        'Content-Type' => 'application/json',
-        'Accept' => 'application/vnd.ingle+json; version=1',
+        'Content-Type'    => 'application/json',
+        'Accept'          => 'application/vnd.ingle+json; version=1',
         'Accept-Language' => 'en-CA',
     ];
 
@@ -41,20 +51,48 @@ class Guzzle implements BaseClient
     }
 
     /**
-     * Gets authorization token using API key and creates new client containing token.
+     * Set the API key.
      *
-     * @param $key
+     * @param $apiKey
+     */
+    public function setApiKey($apiKey)
+    {
+        $this->apiKey = $apiKey;
+    }
+
+    /**
+     * Set the authorization token using API key and creates new client containing token.
      *
      * @throws AuthenticationException
      * @throws BadRequestException
      * @throws ResponseException
      * @throws ServerException
      */
-    public function setApiKey($key)
+    public function setAuthorizationHeader()
     {
-        $responseData = $this->post('/token/ingle/basic', ['token' => $key]);
+        if ($this->authorizationHeaderSet) {
+            return;
+        }
 
-        $this->setHeader('Authorization', sprintf('%s %s', $responseData['token_type'], $responseData['access_token']));
+        $uri = '/token/ingle/basic';
+
+        try {
+            $responseData = json_decode(
+                $this->client->post(
+                    $uri,
+                    [
+                        'headers' => $this->headers,
+                        'timeout' => $this->timeout,
+                        'json'    => ['token' => $this->apiKey],
+                    ]
+                )->getBody(), true
+            );
+
+            $this->setHeader('Authorization', sprintf('%s %s', $responseData['token_type'], $responseData['access_token']));
+            $this->authorizationHeaderSet = true;
+        } catch (RequestException $e) {
+            $this->handleException($e, $uri);
+        }
     }
 
     /**
@@ -103,6 +141,8 @@ class Guzzle implements BaseClient
      */
     public function post($uri, array $data)
     {
+        $this->setAuthorizationHeader();
+
         try {
             return json_decode(
                 $this->client->post(
@@ -110,7 +150,7 @@ class Guzzle implements BaseClient
                     [
                         'headers' => $this->headers,
                         'timeout' => $this->timeout,
-                        'json' => $data,
+                        'json'    => $data,
                     ]
                 )->getBody(), true
             );
@@ -133,6 +173,8 @@ class Guzzle implements BaseClient
      */
     public function get($uri)
     {
+        $this->setAuthorizationHeader();
+
         try {
             return json_decode(
                 $this->client->get(
@@ -162,6 +204,8 @@ class Guzzle implements BaseClient
      */
     public function delete($uri)
     {
+        $this->setAuthorizationHeader();
+
         try {
             return json_decode(
                 $this->client->delete(
@@ -192,6 +236,8 @@ class Guzzle implements BaseClient
      */
     public function put($uri, array $data)
     {
+        $this->setAuthorizationHeader();
+
         try {
             return json_decode(
                 $this->client->put(
@@ -199,7 +245,7 @@ class Guzzle implements BaseClient
                     [
                         'headers' => $this->headers,
                         'timeout' => $this->timeout,
-                        'json' => $data,
+                        'json'    => $data,
                     ]
                 )->getBody(), true
             );
@@ -223,6 +269,8 @@ class Guzzle implements BaseClient
      */
     public function patch($uri, array $data)
     {
+        $this->setAuthorizationHeader();
+
         try {
             return json_decode(
                 $this->client->patch(
@@ -230,7 +278,7 @@ class Guzzle implements BaseClient
                     [
                         'headers' => $this->headers,
                         'timeout' => $this->timeout,
-                        'json' => $data,
+                        'json'    => $data,
                     ]
                 )->getBody(), true
             );

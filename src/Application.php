@@ -167,6 +167,16 @@ class Application extends Base
     }
 
     /**
+     * Get all the application data.
+     *
+     * @return array
+     */
+    public function getData()
+    {
+        return $this->data;
+    }
+
+    /**
      * Set the data array to given data.
      *
      * @param $data
@@ -203,12 +213,13 @@ class Application extends Base
      *
      * @param $paymentProvider
      * @param array $additionalData
-     *
-     * @return Confirmation payment confirmation
+     * @param bool $hidePremium
      *
      * @throws DataException
+     *
+     * @return Confirmation payment confirmation
      */
-    public function pay($paymentProvider, $additionalData = [])
+    public function pay($paymentProvider, $additionalData = [], $hidePremium = false)
     {
         if (empty($this->getId())) {
             throw new DataException('Tried to pay with no application ID set.');
@@ -216,8 +227,12 @@ class Application extends Base
 
         $payment = [
             'payment_provider' => $paymentProvider,
-            'additional_data' => $additionalData,
+            'additional_data'  => $additionalData,
         ];
+
+        if ($hidePremium) {
+            $payment['hidePremium'] = true;
+        }
 
         $this->client->post(sprintf('payment/%s/%s', $this->source, $this->getId()), $payment);
 
@@ -229,9 +244,9 @@ class Application extends Base
     /**
      * Cancel policy for current application.
      *
-     * @return float refund amount
-     *
      * @throws DataException
+     *
+     * @return float refund amount
      */
     public function cancel()
     {

@@ -348,6 +348,16 @@ class Applicant extends Base
     }
 
     /**
+     * Get all the applicant data.
+     *
+     * @return array
+     */
+    public function getData()
+    {
+        return $this->data;
+    }
+
+    /**
      * Set the data array to given data.
      *
      * @param $data

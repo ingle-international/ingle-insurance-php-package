@@ -115,7 +115,7 @@ class PremiumRefund extends Base
     {
         $refundData = [
             'payment_provider' => $this->paymentProvider,
-            'additional_data' => $this->chargeRefundAmounts,
+            'additional_data'  => $this->chargeRefundAmounts,
         ];
 
         $response = $this->client->post(sprintf('premium/charge/%s/%s', $this->source, $this->getId()),
